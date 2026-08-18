@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// אין שרת משלנו - כל האכיפה של "כמה פעמים ניתן לצפות בהודעה" קורית כאן.
+// לקוח אף פעם לא יכול לקרוא הודעה שכבר "נצרכה" (consumedCount >= maxViews),
+// גם אם המסמך עדיין קיים בפועל ב-Firestore (הוא יימחק בסוף בעזרת TTL).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /notes/{noteId} {
+
+      // אפשר לקרוא הודעה בודדת (לפי ID) רק אם עוד לא נוצלו כל הצפיות המותרות
+      allow get: if resource.data.consumedCount < resource.data.maxViews;
+
+      // אין לאף אחד סיבה לרשום שאילתת "list" על האוסף - כל גישה היא ב-ID ישיר
+      allow list: if false;
+
+      allow create: if
+        request.resource.data.keys().hasOnly(
+          ['text', 'maxViews', 'consumedCount', 'createdAt', 'expiresAt']
+        ) &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 &&
+        request.resource.data.text.size() <= 20000 &&
+        request.resource.data.maxViews is int &&
+        request.resource.data.maxViews >= 1 &&
+        request.resource.data.maxViews <= 50 &&
+        request.resource.data.consumedCount == 0 &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.expiresAt is timestamp;
+
+      // עדכון יחיד ומותר: הגדלת consumedCount באחד בדיוק, בלי לגעת בשום שדה אחר,
+      // וגם רק כל עוד ההודעה עדיין לא נוצלה במלואה
+      allow update: if
+        resource.data.consumedCount < resource.data.maxViews &&
+        request.resource.data.consumedCount == resource.data.consumedCount + 1 &&
+        request.resource.data.text == resource.data.text &&
+        request.resource.data.maxViews == resource.data.maxViews &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.expiresAt == resource.data.expiresAt;
+
+      // אין מחיקה מהלקוח - ניקוי הודעות ישנות/מנוצלות נעשה דרך מדיניות TTL על expiresAt
+      allow delete: if false;
+    }
+  }
+}

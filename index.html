@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OnceText - טקסט שנעלם</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="site">
+    <h1>OnceText</h1>
+    <p>שולחים טקסט שנעלם ברגע שקוראים אותו. אתר סטטי חינמי, בלי שרת.</p>
+  </header>
+
+  <div class="box">
+    <form id="create-form">
+      <label for="text">הטקסט שברצונך לשלוח</label>
+      <textarea id="text" maxlength="20000" required placeholder="כתוב כאן..."></textarea>
+
+      <div class="views-row">
+        <label for="max-views">כמה אנשים שונים יכולים לצפות בו:</label>
+        <input type="number" id="max-views" min="1" step="1" value="1" required>
+      </div>
+      <p class="hint">כל אחד מהם יכול לצפות בטקסט פעם אחת בלבד. ברגע שהוא עוזב את המסך (עובר לכרטיסייה אחרת, סוגר את הדף וכו') - הוא כבר לא יוכל לראות אותו שוב. כשמספר הצופים המרבי מתמלא, אף אחד לא יכול להיכנס לקישור יותר.</p>
+
+      <button type="submit">צור קישור</button>
+    </form>
+
+    <div class="result" id="result">
+      <label for="link">הקישור שלך (שמור אותו - אי אפשר לשחזר אותו לאחר מכן):</label>
+      <div class="link-row">
+        <input type="text" id="link" readonly>
+        <button type="button" id="copy-btn" class="secondary">העתק</button>
+      </div>
+      <div class="actions">
+        <a id="whatsapp-btn" class="btn" target="_blank" rel="noopener">שליחה בוואטסאפ</a>
+        <button type="button" id="new-btn" class="secondary">כתיבת טקסט חדש</button>
+      </div>
+      <div class="warning">
+        הטקסט כבר נשמר ב-Firestore. אין לו עותק נוסף אצלנו ולא ניתן לשחזר אותו מכאן שוב.
+      </div>
+    </div>
+  </div>
+
+  <footer class="site">
+    הטקסט מוצג בצד הצופה כתמונה ולא כטקסט הניתן להעתקה, אבל זו הגנה חלקית בלבד -
+    צילום מסך תמיד אפשרי. אין כאן שום הצפנה אמיתית.
+  </footer>
+</div>
+
+<script type="module" src="js/create.js"></script>
+</body>
+</html>
